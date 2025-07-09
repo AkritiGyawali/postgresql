@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f8fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 32px 28px 24px 28px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        input[type="text"] {
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 1rem;
+            background: #f9fafb;
+            transition: border 0.2s;
+            flex: 1 1 140px;
+            min-width: 0;
+        }
+        input[type="text"]:focus {
+            border: 1.5px solid #007bff;
+            outline: none;
+            background: #fff;
+        }
+        button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex: 1 1 80px;
+            min-width: 0;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 1rem;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #f1f1f1;
+        }
+        .logout-link {
+            display: block;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        /* Responsive styles  begin*/
+        @media (max-width: 600px) {
+            .container {
+                max-width: 98vw;
+                padding: 12px 4vw 16px 4vw;
+            }
+            form {
+                flex-direction: row;
+                gap: 10px;
+            }
+            input[type="text"], button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            table {
+                min-width: 400px; /* or whatever fits your columns */
+            }
+        }
+        /* Responsive styles end */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a class="logout-link" href="{{ url_for('logout') }}">Logout</a>
+        <h2>Welcome {{current_user.username}}</h2>
+        <form method="POST" action="">
+            <input type="text" name="stock_name" placeholder="Enter Stock Name" required>
+           
+            <button type="submit" name="add_stock">Add</button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% for stock in stocks %}
+  
+{% endfor %}
+    
+    
+    <td>
+      <form  method="POST" action="{{ url_for('home.delete_stock') }}">
+        <input type="text" name="stock_name" placeholder="enter stock name to Delete">
+        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+      </form>
+    </td>
+  
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stock Name</th>
+                        <th>Stock ID</th>
+                        <th>stock price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+
+                        <td>{{ stock.id }}</td>
+                        <td>{{ stock.name}}</td>
+                        <td>{{ stock.ltp}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
