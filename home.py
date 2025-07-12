@@ -1,37 +1,40 @@
-from flask import Blueprint, render_template,request,redirect , flash,url_for
+from flask import Blueprint, render_template,request,redirect , flash,url_for, request
 from flask_login import login_required,current_user
+
 import mysql.connector
-from mysql.connector import Error
 import httpx
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 stock_list= {}
 api_url = 'https://nepalstock.onrender.com/securityDailyTradeStat/58'
-home_bp= Blueprint('home', __name__)    
+home_bp= Blueprint('home', __name__) 
+sqhost=os.getenv('host')
+squser=os.getenv('username')
+sqpassword=os.getenv('password')
+sqdatabase=os.getenv('database')
 mydb=mysql.connector.connect(
 
-    host='localhost',
-    user='root',
-    password='root',
-    database='login'
+    host=sqhost,
+    user=squser,
+    password=sqpassword,
+    database=sqdatabase
 )
 
-    
-        
 mycursor=mydb.cursor()
+
 @home_bp.route('/home',methods=['POST','GET'])
 @login_required
 def home():
+    
  
     if request.method=='POST':
         stock_name=request.form['stock_name']
-        print(stock_name)
         req = httpx.get (api_url,timeout=15)
         if req.status_code == 200:
             data = req.json()
-            print("fetched successfully")
-            #stock_id=request.form['stock_id']
-            print(type(data))
-    
             for item in data:
                 found = False
                 if item["symbol"] == stock_name.upper():
@@ -59,17 +62,16 @@ def home():
     stocks=mycursor.fetchall()
     stocks = [{'name': s[0], 'id': s[1],'ltp':s[2]} for s in stocks]
     return render_template('home.html',stocks=stocks)
-#   except Error as e:
-#      flash(f"An error occurred: Invalid data type", 'danger')
-#      return redirect('/home')
 
-from flask import request, redirect, url_for, flash
-from flask_login import current_user
 
 @home_bp.route('/delete_stock', methods=['POST'])
 def delete_stock():
+      
     stock_name = request.form.get('stock_name')
-    if stock_name:
+    mycursor.execute("select * from showw where stock_name=%s",(stock_name,) )
+    stock_name_data=mycursor.fetchone()
+
+    if stock_name_data:
         try:
             mycursor.execute(
                 "DELETE FROM showw WHERE stock_name = %s AND username = %s",
@@ -81,6 +83,7 @@ def delete_stock():
             flash(f"Error deleting stock: {str(e)}", "danger")
     else:
         flash("Invalid stock ID", "danger")
+        return redirect('/home')
 
     return redirect(url_for('home.home'))
 

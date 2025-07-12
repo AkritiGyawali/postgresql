@@ -17,8 +17,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+
 app= Flask(__name__)
-app.register_blueprint(home_bp)
 
 sqhost=os.getenv('host')
 squser=os.getenv('username')
@@ -46,6 +46,9 @@ mydb=mysql.connector.connect(
 
 mycursor=mydb.cursor()
 
+app.config['DB_config'] = mydb
+app.register_blueprint(home_bp)
+
 bcrypt=Bcrypt(app)
 app.config['SECRET_KEY']=os.getenv('SECRET_KEY')
 
@@ -63,16 +66,6 @@ def load_user(username):
 
 
 
-
-
-
-
-                          
-
-
-
- 
-
 class registerform(FlaskForm):# register form inherits from FlaskForm
     FirstName=StringField(validators=[InputRequired()],render_kw={"placeholder":"First Name"})
     LastName=StringField(validators=[InputRequired()],render_kw={"placeholder":"Last Name"})
@@ -81,7 +74,6 @@ class registerform(FlaskForm):# register form inherits from FlaskForm
     password=PasswordField(validators=[InputRequired(),Length(min=8,max=20)],render_kw={"placeholder":"Password"})# password is the form field and password.data is the actual data entered by the user in the form
     
     confirm_password=PasswordField(validators=[InputRequired(),Length(min=8,max=20),EqualTo('password',message='password must match')],render_kw={"placeholder":"confrim-password"})
-    #abc = StringField(validators=[InputRequired()],render_kw={"placeholder":"Enter OTP"})# abc is the form field and abc.data is the actual data entered by the user in the form
     
     submit=SubmitField('Send Otp')
 
@@ -94,8 +86,6 @@ class registerform(FlaskForm):# register form inherits from FlaskForm
 class otpform(FlaskForm):
     otp=StringField(validators=[InputRequired()],render_kw={"placeholder":"Enter OTP"})    
     submit=SubmitField('Register')
-
-
 
 class loginform(FlaskForm):#loginform inherits from flaskform
     username=StringField(validators=[InputRequired(),Length(min=4,max=15)],render_kw={'placeholder':"Username"})# username is the form field and username.data is the actual data entered by the user in the form
@@ -132,7 +122,7 @@ def login():
             
             user = User( user_data[0],user_data[0], user_data[1])  # Assuming user_id is the first column in the user table
             if bcrypt.check_password_hash(user.password,form.password.data):
-                # user_id is the first column in the user table
+               
                 login_user(user)
             
                 return redirect(url_for('home.home'))# login_user function from flask_login module is used to log in the user
@@ -145,10 +135,6 @@ def login():
     return render_template('login.html',form=form)# here we pass the form to the html
 
 
-# @app.route('/home',methods=['POST','GET'])
-# @login_required
-# def home():
-#     return render_template('home.html')
 
 @app.route('/register',methods=['POST','GET'])
 def register():
@@ -163,18 +149,11 @@ def register():
         hashed_password=bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         global cred 
         cred = {'email':email,'username':username,'hash_pass': hashed_password,'firstname':firstname,'lastname':lastname}
-        print(f'email direct {email}')
-        print(f'email stored {cred.get('email')}')
         generate_and_send_otp(email)
-        print('otp sent')
-        # Registration logic here
-        # mycursor.execute("INSERT INTO users (username,email,is_verified) VALUES (%s,%s,%s)", (username, email, False))
-        # mydb.commit()
+        
         flash('otp has been send to your email . Please verify to register', 'success')
         time.sleep(4)
-        print('error 1')
         return redirect(url_for('otp'))
-    print('error 2')
     return render_template('register.html',form=form)# here we pass the register form to the template
 
 @app.route('/otp', methods=['GET','POST'])
@@ -185,16 +164,13 @@ def otp():
     password = cred.get('hash_pass')
     firstname = cred.get('firstname')
     lastname = cred.get('lastname')
-    print(email)
     if request.method == 'POST':
         code = request.form['otp']
-        print(f'email inside {email}')
         otp_code = otp_store.get(email)['otp']
-        print(f'otp code list{otp_code}')
         if code == otp_code:
             mycursor.execute("INSERT INTO user (first_name,last_name,username,password,email) VALUES (%s,%s,%s,%s,%s)",(firstname,lastname,username,password,email))
             mydb.commit()
-            print("otp verified")
+            
             return redirect('/')
         else:
             print('otp not verified')
@@ -212,7 +188,4 @@ def logout():
 
 
 if __name__=='__main__':
-
-
-
-    app.run(debug =True)
+    app.run(debug =True,host='0.0.0.0',port='8080')

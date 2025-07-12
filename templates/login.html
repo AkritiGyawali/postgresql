@@ -49,7 +49,9 @@
     <h1> Sign to visit home page </h1>
     <form method="POST" action=""> 
         {{form.hidden_tag()}}
+        <span> username<span style="color:red">*</span></span>
         {{form.username}}
+        <span> password<span style="color:red">*</span></span>
         {{form.password}}
         {{form.submit}}
         {% with messages = get_flashed_messages(with_categories=true) %}

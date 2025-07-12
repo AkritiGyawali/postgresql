@@ -66,14 +66,23 @@
     
     <form method="POST" action=""> 
         {{form.hidden_tag()}}
+        <span>First Name<span style="color:red">*</span></span>
         {{form.FirstName}}
+        <span>Last Name<span style="color:red">*</span></span>
+
         {{form.LastName}}
+        <span> Username<span style="color:red">*</span></span>
         {{form.username}}
         {% for error in form.username.errors %}
-            <div style="color:red;">{{ error }}</div>
+                     
+       <div style="color:red;">{{ error }}</div>
         {% endfor %}
+                <span>Email<span style="color:red">*</span></span>
+
         {{form.email}}
+                <span>Password<span style="color:red">*</span></span>
         {{form.password}}
+        <span>Confirm-Password<span style="color:red">*</span></span>
         {{form.confirm_password}}
         {{form.submit(class = btn)}}
         {% for error in form.confirm_password.errors %}
