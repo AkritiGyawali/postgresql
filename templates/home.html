@@ -136,8 +136,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Stock Name</th>
                         <th>Stock ID</th>
+                        <th>Stock Name</th>
                         <th>stock price</th>
                     </tr>
                 </thead>
@@ -145,8 +145,8 @@
                     {% for stock in stocks %}
                     <tr>
 
-                        <td>{{ stock.id }}</td>
                         <td>{{ stock.name}}</td>
+                        <td>{{ stock.id }}</td>
                         <td>{{ stock.ltp}}</td>
                     </tr>
                     {% endfor %}
